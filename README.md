@@ -27,6 +27,28 @@ Prerequisites: Node.js 24 or newer, npm, and PostgreSQL 18 tools (`initdb`, `pg_
 
 MinIO's private bucket is initialized with public access disabled and browser CORS limited to `http://localhost:3000`. Local service ports bind to loopback only. For a deployed domain, configure the chosen S3 provider's bucket CORS to allow only that HTTPS application origin and the required `PUT`, `GET`, and `HEAD` methods.
 
+## Vercel demo deployment
+
+The Next.js app can run on Vercel, but its database and document storage must be hosted separately. For a small demo, Neon PostgreSQL and a private Cloudflare R2 bucket are supported. Do not use the local `.local-postgres/` database or `.local-storage/` files for a deployment; Vercel's local filesystem is not persistent.
+
+1. Import this GitHub repository into Vercel and select the production branch.
+2. Create a Neon database and a private R2 bucket. Create R2 access keys limited to that bucket.
+3. Add these values to the Vercel project's Production environment variables. Use the stable `https://<project>.vercel.app` URL for both application URL variables:
+   - `DATABASE_URL`: Neon PostgreSQL connection string.
+   - `BETTER_AUTH_SECRET`: a new, randomly generated secret used only for production.
+   - `BETTER_AUTH_URL` and `APP_URL`: the stable HTTPS Vercel URL.
+   - `S3_ENDPOINT`: `https://<account-id>.r2.cloudflarestorage.com`.
+   - `S3_REGION`: `auto`.
+   - `S3_BUCKET`: the private R2 bucket name.
+   - `S3_ACCESS_KEY_ID` and `S3_SECRET_ACCESS_KEY`: the bucket-scoped R2 credentials.
+   - `S3_FORCE_PATH_STYLE`: `true`.
+4. Set the R2 bucket's CORS policy to allow the stable Vercel origin, methods `PUT`, `GET`, and `HEAD`, and the headers required by the signed upload (at minimum `Content-Type`; allowing `*` is simpler for a demo). Keep the bucket private.
+5. Deploy to Vercel. From PowerShell in a local clone, set `DATABASE_URL`, `BETTER_AUTH_SECRET`, `BETTER_AUTH_URL`, and `APP_URL` to the same production values, then run `npm run db:auth-migrate` followed by `npm run db:migrate`. These commands target the database in your current `DATABASE_URL`; verify it is the Neon database before running them. Do not commit these values or paste them into chat.
+6. Create a production admin using `npm run db:create-admin -- --email "your-email" --name "Your Name" --role admin`, sign in at the deployed URL, and complete MFA enrollment. Seed fake records only if this is a demo.
+7. Test login, MFA, record creation, and document upload/download on the deployed URL. Preview deployments may not match the configured trusted origin; test using the stable production URL.
+
+Vercel environment variable changes apply to new deployments, so redeploy after changing them. Free-tier quotas and terms can change; confirm current limits with each provider. Do not load real land or personal records until legal, privacy, backup, and access-control requirements have been reviewed.
+
 ## Checks
 
 - `npm run test` runs input-schema tests using Node's built-in test runner.

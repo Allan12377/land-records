@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
   const access = await requireAdmin(request);
   if ("response" in access) return access.response;
   const useLocalStorage = !objectStorageConfigured || !(await isS3Available());
-  if (!objectStorageConfigured && !useLocalStorage) return Response.json({ error: "Private document storage is not configured." }, { status: 503 });
 
   try {
     const input = uploadRequestSchema.parse(await request.json());

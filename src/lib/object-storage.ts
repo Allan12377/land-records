@@ -20,6 +20,12 @@ export const objectStorage = new S3Client({
 
 export async function isS3Available() {
   if (!objectStorageConfigured || !endpoint) return false;
+  const endpointUrl = new URL(endpoint);
+  const isLocalMinIO =
+    (endpointUrl.hostname === "localhost" || endpointUrl.hostname === "127.0.0.1") &&
+    endpointUrl.port === "9000";
+  if (!isLocalMinIO) return true;
+
   try {
     const response = await fetch(`${endpoint.replace(/\/$/, "")}/minio/health/live`, { cache: "no-store" });
     return response.ok;
