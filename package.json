@@ -3,19 +3,38 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --experimental-strip-types --test",
+    "setup:env": "node scripts/setup-env.mjs",
+    "db:start": "node scripts/local-postgres.mjs start",
+    "db:stop": "node scripts/local-postgres.mjs stop",
+    "db:migrate": "node --env-file=.env.local scripts/migrate-db.mjs",
+    "db:auth-migrate": "npx auth@latest migrate --config src/lib/auth.ts",
+    "db:create-admin": "npx auth@latest create-admin --config src/lib/auth.ts",
+    "db:seed:fake-data": "node --env-file=.env.local scripts/seed-fake-data.mjs"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1145.0",
+    "@aws-sdk/s3-request-presigner": "^3.1145.0",
+    "better-auth": "^1.7.7",
+    "dotenv": "^18.0.5",
+    "lucide-react": "^1.50.0",
     "next": "16.3.8",
+    "nodemailer": "^10.0.13",
+    "pg": "^8.23.1",
+    "qrcode.react": "^4.2.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "zod": "^4.6.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/nodemailer": "^8.0.2",
+    "@types/pg": "^8.23.1",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
